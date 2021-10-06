@@ -1,0 +1,56 @@
+apiVersion: cluster.x-k8s.io/v1alpha4
+kind: Cluster
+metadata:
+  name: pzf-test
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    kind: AWSManagedControlPlane
+    name: pzf-test-control-plane
+  infrastructureRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    kind: AWSManagedControlPlane
+    name: pzf-test-control-plane
+
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+kind: AWSManagedControlPlane
+metadata:
+  name: pzf-test-control-plane
+  namespace: default
+spec:
+  region: eu-west-1
+  sshKeyName: pzf2
+  version: 1.21.0
+
+---
+apiVersion: cluster.x-k8s.io/v1alpha4
+kind: MachinePool
+metadata:
+  name: pzf-test-pool-0
+  namespace: default
+spec:
+  clusterName: pzf-test
+  replicas: 1
+  template:
+    spec:
+      bootstrap:
+        dataSecretName: ""
+      clusterName: pzf-test
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+        kind: AWSManagedMachinePool
+        name: pzf-test-pool-0
+
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+kind: AWSManagedMachinePool
+metadata:
+  name: pzf-test-pool-0
+  namespace: default
+spec: {}
